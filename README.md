@@ -76,8 +76,6 @@ We also  plotted the word embeddings using PCA to determine if any meaningful cl
 
 We compared this word embedding model trained on all research papers to the gensim model just trained on the latest years of research papers (i.e the last time period binning see above) to see if the noise from earlier papers were resulting in worse representations of words. To evaluate which model was better we used the similarity scores between each known promtoer and inhibitor to the words 'promote' and 'inhibit'. If the 'promote' similarity score was greater than 'inhibit' we classified that molecule as a promoter and vice versa. We then compared these to the true labels of the molecule. Using the gensim model trained over the entire dataset we got an accuracy of 62%. With the gensim model trained just over the most recent years we got anaccuracy of 65%. 
 
-## Causal Verbs 
-
 
 ## GraphSAGE 
 
@@ -88,7 +86,13 @@ We compared this word embedding model trained on all research papers to the gens
 
 ## Classification 
 
-### Extracting Novel Molecules
+### Using Linguistic Causation 
+We were interested in using the natural language subfield of linguistic causation in helping us determine classifying our novel molecules as promoters or inhibitors. Specifically we wanted to see if these molecules *caused* promotion or inhibition of optic nerve regeneration. 
+
+Our first step was building a model that could successfully characterize sentences into causal sentences or not causal sentences. We used the SemEval 2010 Task 8 dataset which consists of sentences labeled as causal or not suggested by Yang et al (https://arxiv.org/abs/2101.06426). We used this dataset to train a decision tree model inspired from Girju et al (https://dl.acm.org/doi/10.3115/1119312.1119322) which consisted of transforming sentences into <noun phrase, verb, noun phrase 2> for training. However, we departured from the paper by turning our noun phrases into word embeddings rather than semantic features. We used the pre-trained 100-dimesion GloVe model (glove.6B.100d) for transforming the noun phrases into word embeddings. However, this resulted in some noun phrases not being found. This could later be improved by using byte pair encoding. Our decision tree resulted in a weighted avg F1 score of 0.92. Full results below: 
+
+Classification report of our decision tree model (using sklearn.tree) 
+<img width="425" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/ad59040b-ef9c-4aff-938c-5b66337cc2fe">
 
 ### Naive-Bayes and Logistic Regression 
 
