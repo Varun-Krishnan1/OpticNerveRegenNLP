@@ -1,6 +1,18 @@
 # OpticNerveRegenNLP
 Using NLP methods to gain insights from optic nerve regeneration literature.
 
+NOTE: Some files are not uploaded due to file size limits of github. The files not included are: 
+* Balanced_Supervised_2_classes_no_molecules_10_epochs.pth - BERT model trained on balanced dataset 
+* Supervised_10_epochs.pth
+* Supervised_3_classes_no_molecules_10_epochs.pth - BERT model trained for 3 classes on unbalanced dataset 
+* Supervised_3_classes_random_neither_10_epochs.pth - BERT model trained for 3 classes on unbalanced dataset without removal of - molecules 
+* FastText.wordvectors.vectors_ngrams.npy 
+* glove.6b.50d.txt
+* glove.6b.100d.txt
+* glove.6b.200d.txt
+* glove.6b.300d.txt
+
+
 ## Previous Work 
 This work is an expansion of the lab's previous paper found here: _ 
 Our previous paper used Dynamic Topic Modeling with Latent Dimension Analysis to cluster research papers from optic nerve regeneration literature. 
