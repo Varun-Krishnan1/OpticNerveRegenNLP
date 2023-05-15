@@ -69,7 +69,7 @@ Similarity between 'neuron' and 'axon' across binned time periods:
 We trained a gensim model with lemmatization and *not* filtering out stopwords across all research papers to get a better representation of words across all contexts. Full analysis can be found at GensimModelEntireCorpusAnalysis.ipynb
 
 To determine how much the word embedding model captured we looked at similar words between our known promoters and inhibitors. Most similar words for the molecule 'socs3'. As you can see the words are meaningful meaning the model has a good vector representation of 'socs3': 
-[!image]("https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/6a61f0b4-53b7-4fb9-b52c-a44dae4f1dad")
+[!image](https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/6a61f0b4-53b7-4fb9-b52c-a44dae4f1dad)
 
 We also  plotted the word embeddings using PCA to determine if any meaningful clustering could be seen: 
 ![image](https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/45d412b3-2c15-41de-ac1c-aabdfd69db8a)
