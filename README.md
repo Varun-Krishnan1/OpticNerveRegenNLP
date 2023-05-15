@@ -113,6 +113,9 @@ To ensure that there was sentences couldn't be about promotion and inhibition me
 
 You can notice from the figure that the vast majority of sentences have only one promoter or one inhibitor. In fact this consists of 97% of the sentences in the corpus. The other 3% that contained both were discarded from the supervised learning dataset. 
 
+The unbalanced version of the dataset consisted of 1279 promoter sentences and 2631 inhibitor sentences and 5000 *randomly* chosen neutral sentences. 
+The balanced version of the dataset consisted of 
+
 ### Logistic Regression and Naive-Bayes 
 **Logistic Regression** was performed by first lemmatizing the corpus and removing all stop words. Then a frequency table of the supervised learning dataset sentences was constructed and this frequency table was used to construct vector representation of each of our sentences. We plotted the vector representation of our sentences with green being promotion sentences and red being inhibition sentences. You can clearly see from the figure that they can be separated in the 2D vector space and hence, it is feasible a logistic regression model can learn to distinguish between the sentences. The figure and the results from the logistic regression model are below. Note the results shown are with the unbalanced dataset which explains why it does much better labeling sentences ans inhibition rather than promotion. 
 
@@ -126,8 +129,20 @@ You can notice from the figure that the vast majority of sentences have only one
 **It was found from analyzing the frequency tables of both models that words we would expect to be inhibitory (eg, inhibition, deletion, myelin) were very likely to be seen in known inhibitory sentences whereas words that we would expect to be promotery (eg, promote, increase, lengthen) were not likely to be picked up as words occurring with high frequency in known promotion sentences. This is important as models need to distinguish inhibitory words vs promotion words but it doesn't look like sentences in the dataset do a good job of allowing for this** 
 
 ### BERT 
+The state-of-the-art NLP model of BERT (Bidrectional Encoder Representations from Transformers) was used to better classify the novel molecules. We used the "roberta-base" model from the hugging face transformers library. 
 
+To validate BERT's ability to differentiate causual sentences we used the SemEval 2010 Task 8 Dataset (described above) and achieved a .97 AUC on the dataset. 
 
+We fine-tuned the roberta-base model on our supervised dataset (as described above). We originally trained BERT on the unbalanced version of the dataset and validated it by its ability to classify promoters, inhibitors, and neither from a set of manually labeled molecules, different from the ones it were trained on, but it achieved an accuracy of only 34% (essentially random guessing). It's most common mistake was labelling a promoter as an inhibitor - most likely due to the unbalanced nature of the dataset. Code is at BERT Training for 3 Classes.ipynb and Evaluating BERT 3 Classes on Manually Labelled Data.ipynb. 
+
+We tried again using the balanced version of the dataset and trained it to classify novel molecules as only 2 classes, promoter or inhibitor, yet when validated with the manually labelled data it achieved an accuracy of only 48% again essentially random. Empirically giving BERT sentences that should be easy to label as promotory or inhibitory, BERT did not show an ability to acurrately classify the sentences. Code is at BERT 2 Class Training on Balanced Dataset.ipynb. 
+
+Bert Workflow: 
+1. Go through corpus and use known molecules to get sentences with a promoter and sentences with an inhibitor 
+2. Presumably, these sentences have unique characteristics for promoters vs inhibitors that BERT could learn to recognize 
+3. Train the BERT model with input of these promoter sentences, inhibitor sentences, and also sentences with neither and output as the class of molecule that sentence is representing (or just promoter and inhibitor sentences for 2 class version) 
+4. After training, go through the corupus and pull sentences with the novel molecules and using the sentences have our trained BERT model label those sentences as promoter or inhibitor or neither (or promoter or inhibitor for 2 class version) 
+5. Based on their respective sentence labels classify unknown molecules as promoter or inhibitor or neither by taking the average score across all the sentences of a given molecule 
 
 
 
