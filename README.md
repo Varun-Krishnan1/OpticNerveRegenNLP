@@ -20,7 +20,7 @@ One of the main goals of this work is to gain insight into new molecules that ca
 
 Before classifying molecules however we need a way to extract molecules from the literature. SciSpacy models for Named Entity Recognition (https://scispacy.apps.allenai.org/) was attempted to be used using all 4 named entity recognition models (craft_md, jnlpba_md, bc5cdr_md, bionlp13cg_md). The results can be found at __ but were determined to be too noisy and not enough molecules were able to be extracted. 
 
-We came up with another method of extracting molecules from the literature using the scispacy abbreviation detector (https://github.com/allenai/scispacy). This was found to be a much more robust method generating much higher-quality candidate texts and also provided the full name for a molecule abbrevation. Having the full name and the abbrevation allowed us to use a domain expert to easily curate the generated list of text from the abbreviation detector to only include molecules. The fully curated list can be found at _ 
+We came up with another method of extracting molecules from the literature using the scispacy abbreviation detector (https://github.com/allenai/scispacy). This was found to be a much more robust method generating much higher-quality candidate texts and also provided the full name for a molecule abbrevation. Having the full name and the abbrevation allowed us to use a domain expert to easily curate the generated list of text from the abbreviation detector to only include molecules. The fully curated list can be found at _ and consists of 822 novel molecules. 
 
 ## Determining Model for Word Embeddings from Literature 
 The first step was to generate high-quality word embeddings from the corpus. These word embeddings were later used for inputs to GraphSage (see below). Choices had to be made on how to pre-process the data prior to generating the word embeddings including using or not using stopwords, the use of stemming vs lemmatization, and the choice of the word embedding model (Gensim vs GloVe). Different combinations were compared in the file Determining Best Embedding Model.ipynb which **trained models on research papers from a single year** and evaluated their output. The word embeddings later used in the project were trained over the entire corpus. 
@@ -78,23 +78,52 @@ We compared this word embedding model trained on all research papers to the gens
 
 
 ## GraphSAGE 
-
+One of the main goals of this project was learning the relationships between different molecules. To accomplish this we used the GraphSAGE algorithm as described here: https://cs.stanford.edu/people/jure/pubs/graphsage-nips17.pdf. This algorithm allows for inductive learning of vector representations of entities that are linked together in a graph. The alogirthm then allows for using clustering these learned representations using a 2D TSNE plot. Code for analysis is at "GraphSAGE on all molecules.ipynb" 
 
 ### Creating the Graph 
+To construct the graph we first started with our known promoters and inhibitors. The values of the nodes of the graph were the previously learned Gensim Word Embeddings for the molecules. Links between molecules were if the molecule occurred in the same sentence as another. The relationships empirically seen on the graph were found to match known pathways of how the known promoters and inhibitors relate to each other validating this approach. 
+
+Promoters are in green and inhibitors are in red. Relationships between molecules such as neigbors a molecule has matches known pathways for these promoters and inhibitors. 
+![image](https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/12a6ff5a-6348-4be4-a44e-c074224d8423)
+
+A similar method was performed to graph all novel molecules and the known promoters or inhibitors in one graph (too big to be shown). 
 
 ### Clustering using the GraphSAGE algorithm
+GraphSAGE clustering using just the known promoters/inhibitors graph did not have enough molecules to see any reasonable clustering. Hence, the algorithm was doing using the graph that consisted of all novel and known molecules. The GraphSAGE algorithm was performed to generate GraphSAGE-learned word embeddings and these word embeddings were then graphed using TSNE onto a 2D plot. Known promoters and inhibitors are labeled in the graph. 
+
+![image](https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/721a1998-3ede-4395-82a7-ea2cd3ffcc65)
+
+Known promoters and inhibitors were seen to cluster in known optic nerve regeneration pathways thereby validating this approach. 
 
 ## Classification 
 
 ### Using Linguistic Causation 
 We were interested in using the natural language subfield of linguistic causation in helping us determine classifying our novel molecules as promoters or inhibitors. Specifically we wanted to see if these molecules *caused* promotion or inhibition of optic nerve regeneration. 
 
-Our first step was building a model that could successfully characterize sentences into causal sentences or not causal sentences. We used the SemEval 2010 Task 8 dataset which consists of sentences labeled as causal or not suggested by Yang et al (https://arxiv.org/abs/2101.06426). We used this dataset to train a decision tree model inspired from Girju et al (https://dl.acm.org/doi/10.3115/1119312.1119322) which consisted of transforming sentences into <noun phrase, verb, noun phrase 2> for training. However, we departured from the paper by turning our noun phrases into word embeddings rather than semantic features. We used the pre-trained 100-dimesion GloVe model (glove.6B.100d) for transforming the noun phrases into word embeddings. However, this resulted in some noun phrases not being found. This could later be improved by using byte pair encoding. Our decision tree resulted in a weighted avg F1 score of 0.92. Full results below: 
+Our first step was building a model that could successfully characterize sentences into causal sentences or not causal sentences. We used the SemEval 2010 Task 8 dataset which consists of sentences labeled as causal or not suggested by Yang et al (https://arxiv.org/abs/2101.06426). We used this dataset to train a decision tree model inspired from Girju et al (https://dl.acm.org/doi/10.3115/1119312.1119322) which consisted of transforming sentences into <noun phrase, verb, noun phrase 2> for training. However, we departured from the paper by turning our noun phrases into word embeddings rather than semantic features. We used the pre-trained 100-dimesion GloVe model (glove.6B.100d) for transforming the noun phrases into word embeddings. However, this resulted in some noun phrases not being found. This could later be improved by using byte pair encoding. Our decision tree resulted in a weighted avg F1 score of 0.92 on the SemEval 2010 Task 8 dataset. Full analysis can be found at Decision Tree on SemEval Dataset.ipynb 
 
 Classification report of our decision tree model (using sklearn.tree) 
 <img width="425" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/ad59040b-ef9c-4aff-938c-5b66337cc2fe">
 
-### Naive-Bayes and Logistic Regression 
+### Creating a Supervised Learning Dataset 
+To use machine learning models to predict whether the novel molecules were promoters or inhibitors we needed to have a training dataset. Our training set was constructed using the known promoters and inhibitors described above. The corpus was iterated through and each sentence that containing a *known* promoter or inhibitor was extracted. This allows for sentences that could be presumed to be about promotion (sentences with a promoter) or sentences that could be presumed to be about inhibition (sentence with an inhibitor) of optic nerve regeneration. 
+
+To ensure that there was sentences couldn't be about promotion and inhibition meaning it contained both a promtoer and an inhibitor about it we plotted the number of promoters and inhibitors in each sentence we extracted. 
+![image](https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/9eac9a54-2c00-4a91-81a8-dfcae75c0591)
+
+You can notice from the figure that the vast majority of sentences have only one promoter or one inhibitor. In fact this consists of 97% of the sentences in the corpus. The other 3% that contained both were discarded from the supervised learning dataset. 
+
+### Logistic Regression and Naive-Bayes 
+**Logistic Regression** was performed by first lemmatizing the corpus and removing all stop words. Then a frequency table of the supervised learning dataset sentences was constructed and this frequency table was used to construct vector representation of each of our sentences. We plotted the vector representation of our sentences with green being promotion sentences and red being inhibition sentences. You can clearly see from the figure that they can be separated in the 2D vector space and hence, it is feasible a logistic regression model can learn to distinguish between the sentences. The figure and the results from the logistic regression model are below. Note the results shown are with the unbalanced dataset which explains why it does much better labeling sentences ans inhibition rather than promotion. 
+
+![image](https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/ddee0e14-9b99-4709-9e07-d3adee975f1a)
+<img width="953" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/3875b9b3-1fa2-400f-9739-93fb39b9cbd8">
+![image](https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/ddee0e14-9b99-4709-9e07-d3adee975f1a)
+
+**Naive-Bayes** was performed using smoothed ratio values from the frequency table to represent each sentence. The vector representations were also plotted which showed the sentences could be split. The results running Naive-Bayes with the balanced dataset are below. 
+<img width="746" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/030690d6-b89b-4570-b7e2-7d9331947917">
+
+**It was found from analyzing the frequency tables of both models that words we would expect to be inhibitory (eg, inhibition, deletion, myelin) were very likely to be seen in known inhibitory sentences whereas words that we would expect to be promotery (eg, promote, increase, lengthen) were not likely to be picked up as words occurring with high frequency in known promotion sentences. This is important as models need to distinguish inhibitory words vs promotion words but it doesn't look like sentences in the dataset do a good job of allowing for this** 
 
 ### BERT 
 
