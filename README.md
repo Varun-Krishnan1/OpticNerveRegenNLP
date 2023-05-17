@@ -14,8 +14,8 @@ NOTE: Some files are not uploaded due to file size limits of github. The files n
 
 
 ## Previous Work 
-This work is an expansion of the lab's previous paper found here: _ 
-Our previous paper used Dynamic Topic Modeling with Latent Dimension Analysis to cluster research papers from optic nerve regeneration literature. 
+This work is an expansion of the lab's previous paper found here: _   
+The lab's previous paper used Dynamic Topic Modeling with Latent Dimension Analysis to cluster research papers from optic nerve regeneration literature. 
 
 ![LDAPaper](https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/9ff2cc79-3589-4246-978b-6a493be1f96c)
 
