@@ -22,7 +22,7 @@ The lab's previous paper used Dynamic Topic Modeling with Latent Dimension Analy
 ## Dataset 
 Our corpus consisted of _ papers ranging from years _ - _ chosen by members of the optic nerve regeneration wet lab team. 
 
-The research papers were in PDF format. We applied optical character recognition to extract the text. 
+The research papers were in PDF format. We applied optical character recognition (OCR) to extract the text. 
 
 ## Known Promoter and Inhibitors 
 To generate supervised learning sentences as well as to test accuracy of the various methods below we needed to have a set of known molecules that promoted optic nerve regeneration as well as molecules that inhibited optic nerve regeneration. These we will refer throughout this as **known promoters** and **known inhibitors** or simply **known molecules**. This was manually created by a domain expert in optic nerve regeneration and can be found at KnownPromotersInhibitors. The original list consisted of 23 promoters and 20 inhibitors but 5 promoters were added later on for better class balancing since inhibitors had a lot more sentences in the literature than promoters. 
