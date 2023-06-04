@@ -145,7 +145,7 @@ The balanced version of the dataset consisted of 2625 promoter sentences and 260
 ![image](https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/ddee0e14-9b99-4709-9e07-d3adee975f1a)
 ![image](https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/3875b9b3-1fa2-400f-9739-93fb39b9cbd8)
 
-**Naive-Bayes** was performed using smoothed ratio values from the frequency table to represent each sentence. The vector representations were also plotted which showed the sentences could be split. The results running Naive-Bayes with the balanced dataset are below. 
+**Naive-Bayes** was performed using smoothed ratio values from the frequency table to represent each sentence. The vector representations were also plotted which showed the sentences could be split. The results running Naive-Bayes with the balanced dataset are below.      
 ![image](https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/030690d6-b89b-4570-b7e2-7d9331947917)
 
 **It was found from analyzing the frequency tables of both models that words we would expect to be inhibitory (eg, inhibition, deletion, myelin) were very likely to be seen in known inhibitory sentences whereas words that we would expect to be promotery (eg, promote, increase, lengthen) were not likely to be words occurring with high frequency in known promotion sentences. This is important as models need to distinguish inhibitory words vs promotion words but it doesn't look like sentences in the dataset do a good job of allowing for this. This may be why BERT (see below) was not able to differenitate promotion vs inhibition sentences either.** 
