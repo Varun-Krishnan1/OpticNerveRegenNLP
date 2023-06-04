@@ -155,9 +155,9 @@ The state-of-the-art NLP model of BERT (Bidrectional Encoder Representations fro
 
 To validate BERT's ability to differentiate causual sentences we used the SemEval 2010 Task 8 Dataset (described above) and achieved a .97 AUC on the dataset. 
 
-We fine-tuned the roberta-base model on our supervised dataset (workflow described below). Note that the supervised molecules were removed from the sentence prior to training so that BERT could not over-train on the supervised molecule's names. We originally trained BERT on the unbalanced version of the dataset and validated it by its ability to classify promoters, inhibitors, and neither from a set of manually labeled molecules, different from the ones it were trained on, but it achieved an accuracy of only 34% (essentially random guessing). It's most common mistake was labelling a promoter as an inhibitor - most likely due to the unbalanced nature of the dataset. Code is at BERT Training for 3 Classes.ipynb and Evaluating BERT 3 Classes on Manually Labelled Data.ipynb. 
+We fine-tuned the roberta-base model on our supervised dataset (workflow described below). Note that the supervised molecules were removed from the sentence prior to training so that BERT could not over-train on the supervised molecule's names. We originally trained BERT on the unbalanced version of the dataset and validated it by its ability to classify promoters, inhibitors, and neither from a set of manually labeled molecules, different from the ones it were trained on. These manually labeled molecuels were taken from the wet team and labels from the team were extracted by taking the first letter of their respones ("P" vs "I" vs "N"). About 141 molecules were able to evalauted but it achieved an accuracy of only 34% (essentially random guessing). It's most common mistake was labelling a promoter as an inhibitor - most likely due to the unbalanced nature of the dataset. Code is at BERT Training for 3 Classes.ipynb and Evaluating BERT 3 Classes on Manually Labelled Data.ipynb. 
 
-We tried again using the balanced version of the dataset and trained it to classify novel molecules as only 2 classes, promoter or inhibitor, yet when validated with the manually labelled data it achieved an accuracy of only 48% again essentially random. Empirically giving BERT sentences that should be easy to label as promotory or inhibitory, BERT did not show an ability to acurrately classify the sentences. Code is at BERT 2 Class Training on Balanced Dataset.ipynb. 
+We tried again using the balanced version of the dataset and trained it to classify novel molecules as only 2 classes, promoter or inhibitor, yet when validated with the manually labelled data it achieved an accuracy on the wet lab labelled molecules of only 48% again essentially random. Empirically giving BERT sentences that should be easy to label as promotory or inhibitory, BERT did not show an ability to acurrately classify the sentences. Code is at BERT 2 Class Training on Balanced Dataset.ipynb. 
 
 Bert Workflow:
 1. Go through corpus and use known molecules to get sentences with a promoter and sentences with an inhibitor 
@@ -202,12 +202,26 @@ To test the molecules that had a prompt size + masked sentence size > 4905 token
 
 You can see the f-1 score is excellent here and surpasses that of the molecules < 4095 tokens. This is perhaps due to the molecules with more tokens are more studied in literature and therefore, have more clear categorizations as promoter or inhibitor. These molecules also perhaps have greater representation from recent years where recent years have higher-quality data for GPT to interpret. Also more sentences allows GPT to have more data to work with. 
 
-**Overall Results**       
+**Overall Results from Known Molecules**       
 
 The results for both molecules <4905 tokens and molecules >4905 tokens are below. 
 
 All Molecules (41 molecules) Results: 
 <img width="411" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/9778eadf-88e4-40fb-a1e2-f89e5801098f">
+
+**Evaluating GPT on Wet-Lab Labelled Molecules**     
+Just like the BERT model we used GPT to see how well it could evaluate molecules manually labelled from the wet lab team. These molecules would be more challenging than the known molecules because these would be lesser known and most likely have less literature associated with it.      
+
+We first went through the wet lab team labels and manually converted each label as: "P" - promoter, "I" - Inhibitor, "N" - Neither, and "B" - Both. These were saved in new excel files with the wet lab team member and "Curated" appended at the end of the file name (eg, CK_Molecules_To_Label_Curated.xlsx). We extracted 111 molecules with 69 being promoters and 42 being inhibitors for this evaluation. However, after going through the corpus only 78 molecules were able to be found using their primary name and other names. This is most likely due to difficulty of finding the molecules in a sentence due to things like punctuation, end of sentence handling, etc. From these we had to remove any molecules that were also known molecules which brought our molecules down to 73. This consisted of 44 promoters and 29 inhibitors. These masked sentences were saved as a json at: Code/Sentence Classification/Output/Combined_Sentences_Per_Molecule/masked_wet_lab_73_molecules.json
+
+Now we created a prompt in the same manner as above for the known molecules. The molecules were also split by tokens < 4905 and tokens > 4095. The results are below: 
+
+
+
+
+
+
+
 
 
 
