@@ -169,9 +169,45 @@ Bert Workflow:
 
 Embeddings generated from the BERT model were also used as node values for GraphSAGE (see above) rather than Gensim Word Vectors. However, the results with the BERT embeddings were found to be worse due to the face that BERT embeddigns were not meant to be compared (such as us using cosine similarity) like traditional word embedding are. 
 
+### GPT 
+GPT has the potential to provide even better results than BERT. To test the use of a GPT model we used the GPT interface available from OpenAi at chat.openai.com. We chose to use the web interface rather than making api calls due to our high token size and therefore, high cost associated with the api. To use GPT we did not do any fine-tuning on the model and instead did a zero-shot classificaiton approach. 
 
+**Generating Masked Training Sentences**           
+The first goal is to generate masked sentences for molecules. This is done in Generating Masked Training Sentences.ipynb. 
 
+First, this file uses KnownPromotersInhibitors.csv to read in the PrimaryName, OtherNames, and Class of our known molecules. It then defines a Molecule class which stores these names and class for each molecule. We then iterate through the sentences in our corpus. For each sentence we remove the punctuation and then check for any molecule names (primary or other names) for each molecule. If there is only one class of molecules in the sentence (so excluding sentences with both a promoter and inhibitor in it) then we mask all the primary and other names for each molecule of the same class we found. We do **not** mask any other molecule names in the sentence. Finally, we add this sentence to a dictionary with the key being the primaryname of the molecule (or molecules) that were in the sentence. 
 
+The output is saved in Sentence Classification/Output/Combined_Sentences_Per_Molecule/masked_known_molecules.json
+
+**Creating GPT Prompts** 
+We then need to create prompts to provide GPT for classifying a molecule as promoter or inhibitor. Two types of prompts were tried: one-answer and justification. The prompts were prepended to the masked sentences for each molecule.  
+One Answer Prompt:      
+> I will give you a set of sentences from research articles that have to do with optic nerve regeneration. These sentences will have a molecule, represented by "[MASK1]", which is either a promoter or inhibitor of optic nerve regeneration. Please respond only with if this molecule is a promoter or inhibitor of optic nerve regeneration. No explanation is necessary. You can only respond with the word promoter or inhibitor. Here are the sentences from the research articles:
+Justification Prompt:      
+> I will give you a set of sentences from research articles that have to do with optic nerve regeneration. These sentences will have a molecule, represented by "[MASK1]", which is either a promoter or inhibitor of optic nerve regeneration. Please respond with if this molecule is a promoter or inhibitor of optic nerve regeneration. Please justify your answer. Here are the sentences from the research articles:
+
+The original purpose of the one-answer prompt was to save some tokens on the response if we were to use an API call in the future. However, after testing the responses we found that the justification prompt was able to get more accurate classifications of the molecules. Therefore, we used the justtification prompt moving forward. 
+
+**Token Size**      
+The GPT model we first began with was GPT 3.5 which has a max token size of 4906 tokens. Therefore, we had to ensure the prompts plus all masked sentences fit under the token limit. To determine the token size without making an api call we can use the tiktoken library. To begin we only began with prompts + masked sentences for molecules < 4905 tokens. The responses were fed through the web interface for GPT 3.5 and responses were manually saved in dictionaries with the key being the primary name of the molecule and the value being the label from GPT. The results for the one-answer prompts and justify prompts for these molecules < 4905 tokens are below: 
+
+GPT one-answer prompt results:      
+<img width="412" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/08cdb42d-c788-4ec8-ab00-de0886a74fc9">
+
+GPT justify-answer prompt results:       
+<img width="412" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/35625634-a670-4d41-b5e4-782e77367566">
+
+To test the molecules that had a prompt size + masked sentence size > 4905 tokens we split the sentences for each given molecule into separate files that were each under the token limit. The files were split by sentences so a sentence did not get cut off between files. To get the results for a given molecule we gave separate GPT instances the sentences from each file for a molecule. We then took the mode of the class label from each file that GPT outputted and used that as the class label for the molecule. The results for these molecules > 4095 tokens are below. 
+<img width="416" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/9c2146e4-0c41-45df-8f88-7c92bd7dd2a4">
+
+You can see the f-1 score is excellent here and surpasses that of the molecules < 4095 tokens. This is perhaps due to the molecules with more tokens are more studied in literature and therefore, have more clear categorizations as promoter or inhibitor. These molecules also perhaps have greater representation from recent years where recent years have higher-quality data for GPT to interpret. Also more sentences allows GPT to have more data to work with. 
+
+**Overall Results**       
+
+The results for both molecules <4905 tokens and molecules >4905 tokens are below. 
+
+All Molecules (41 molecules) Results: 
+<img width="411" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/9778eadf-88e4-40fb-a1e2-f89e5801098f">
 
 
 
