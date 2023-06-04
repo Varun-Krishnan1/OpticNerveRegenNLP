@@ -186,7 +186,7 @@ One Answer Prompt:
 Justification Prompt:      
 > I will give you a set of sentences from research articles that have to do with optic nerve regeneration. These sentences will have a molecule, represented by "[MASK1]", which is either a promoter or inhibitor of optic nerve regeneration. Please respond with if this molecule is a promoter or inhibitor of optic nerve regeneration. Please justify your answer. Here are the sentences from the research articles:
 
-The original purpose of the one-answer prompt was to save some tokens on the response if we were to use an API call in the future. However, after testing the responses we found that the justification prompt was able to get more accurate classifications of the molecules. Therefore, we used the justtification prompt moving forward. 
+The original purpose of the one-answer prompt was to save some tokens on the response if we were to use an API call in the future. However, after testing the responses we found that the justification prompt was able to get more accurate classifications of the molecules. Therefore, we used the justification prompt moving forward. Ocassionaly, GPT would not give an answer saying there was not enough information or it was too ambigious. In these cases we would respond with "Please pick an option" which forced it to choose a class. 
 
 **Token Size**      
 The GPT model we first began with was GPT 3.5 which has a max token size of 4906 tokens. Therefore, we had to ensure the prompts plus all masked sentences fit under the token limit. To determine the token size without making an api call we can use the tiktoken library. To begin we only began with prompts + masked sentences for molecules < 4905 tokens. The responses were fed through the web interface for GPT 3.5 and responses were manually saved in dictionaries with the key being the primary name of the molecule and the value being the label from GPT. The results for the one-answer prompts and justify prompts for these molecules < 4905 tokens are below: 
@@ -214,10 +214,25 @@ Just like the BERT model we used GPT to see how well it could evaluate molecules
 
 We first went through the wet lab team labels and manually converted each label as: "P" - promoter, "I" - Inhibitor, "N" - Neither, and "B" - Both. These were saved in new excel files with the wet lab team member and "Curated" appended at the end of the file name (eg, CK_Molecules_To_Label_Curated.xlsx). We extracted 111 molecules with 69 being promoters and 42 being inhibitors for this evaluation. However, after going through the corpus only 78 molecules were able to be found using their primary name and other names. This is most likely due to difficulty of finding the molecules in a sentence due to things like punctuation, end of sentence handling, etc. From these we had to remove any molecules that were also known molecules which brought our molecules down to 73. This consisted of 44 promoters and 29 inhibitors. These masked sentences were saved as a json at: Code/Sentence Classification/Output/Combined_Sentences_Per_Molecule/masked_wet_lab_73_molecules.json
 
-Now we created a prompt in the same manner as above for the known molecules. The molecules were also split by tokens < 4905 and tokens > 4095. The results are below: 
+Now we created a prompt in the same manner as above for the known molecules. The molecules were also split by tokens < 4905 and tokens > 4095 (including the prompt). 60 molecules were <4905 tokens and 13 molecules were >4905 tokens. Just like above if GPT did not provide an answer we would say "Please pick an option". The results are below:
+
+Results for Wet Lab Labeled Molecules <4905 (57 molecules): 
+<img width="425" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/33909758-4253-43ac-9d40-6ace57793f9c">               
+You can see the overall accuracy is no better than random guessing. However, the f-1 for the promoter labels were relatively good meaning GPT is good at labelling promoters but not good at labelling inihibitors. 
+
+Results for Wet Lab Labeled Molecules >4905 (13 molecules): 
+<img width="408" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/b87be481-2d9a-4b64-b0f5-41e3924af4c9">      
+You can see the f-1 and accuracy is way better for molecules with more sentences which is similar to the known molecules results we got. Again predicting promoters were better than predicting inhibitors. 
+
+Results for All Molecules (70 molecules): 
+<img width="421" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/93c8db38-8204-4875-896d-0fa7ead5f498">
 
 
 
+Questions: 
+- Should we ask it to "Please pick an option" or to keep trying instances until it gets it? 
+- How should we ask confidence scores? 
+- 
 
 
 
