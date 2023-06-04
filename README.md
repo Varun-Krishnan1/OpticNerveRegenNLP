@@ -216,15 +216,15 @@ We first went through the wet lab team labels and manually converted each label 
 
 Now we created a prompt in the same manner as above for the known molecules. The molecules were also split by tokens < 4905 and tokens > 4095 (including the prompt). 60 molecules were <4905 tokens and 13 molecules were >4905 tokens. Just like above if GPT did not provide an answer we would say "Please pick an option". The results are below:
 
-Results for Wet Lab Labeled Molecules <4905 (57 molecules): 
+Results for Wet Lab Labeled Molecules <4905 (57 molecules):        
 <img width="425" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/33909758-4253-43ac-9d40-6ace57793f9c">               
 You can see the overall accuracy is no better than random guessing. However, the f-1 for the promoter labels were relatively good meaning GPT is good at labelling promoters but not good at labelling inihibitors. 
 
-Results for Wet Lab Labeled Molecules >4905 (13 molecules): 
+Results for Wet Lab Labeled Molecules >4905 (13 molecules):       
 <img width="408" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/b87be481-2d9a-4b64-b0f5-41e3924af4c9">      
 You can see the f-1 and accuracy is way better for molecules with more sentences which is similar to the known molecules results we got. Again predicting promoters were better than predicting inhibitors. 
 
-Results for All Molecules (70 molecules): 
+Results for All Molecules (70 molecules):       
 <img width="421" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/93c8db38-8204-4875-896d-0fa7ead5f498">
 
 
