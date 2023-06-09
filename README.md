@@ -170,7 +170,7 @@ Bert Workflow:
 Embeddings generated from the BERT model were also used as node values for GraphSAGE (see above) rather than Gensim Word Vectors. However, the results with the BERT embeddings were found to be worse due to the face that BERT embeddigns were not meant to be compared (such as us using cosine similarity) like traditional word embedding are. 
 
 ### GPT 
-GPT has the potential to provide even better results than BERT. To test the use of a GPT model we used the GPT interface available from OpenAi at chat.openai.com. We chose to use the web interface rather than making api calls due to our high token size and therefore, high cost associated with the api. To use GPT we did not do any fine-tuning on the model and instead did a zero-shot classificaiton approach. 
+GPT has the potential to provide even better results than BERT. To test the use of a GPT model we used the GPT interface available from OpenAi at chat.openai.com. We chose to use the web interface rather than making api calls due to our high token size and therefore, high cost associated with the api. To use GPT we did not do any fine-tuning on the model and instead did a zero-shot classificaiton approach and classified molecules into two classes, promoter or inhibitor. We did not add a third class due to a lack of a ground truth dataset with neutral molecules to evalute how well the model was predicting neutral molecules.  
 
 **Generating Masked Training Sentences**           
 The first goal is to generate masked sentences for molecules. This is done in Generating Masked Training Sentences.ipynb. 
@@ -184,12 +184,12 @@ We then need to create prompts to provide GPT for classifying a molecule as prom
 One Answer Prompt:      
 > I will give you a set of sentences from research articles that have to do with optic nerve regeneration. These sentences will have a molecule, represented by "[MASK1]", which is either a promoter or inhibitor of optic nerve regeneration. Please respond only with if this molecule is a promoter or inhibitor of optic nerve regeneration. No explanation is necessary. You can only respond with the word promoter or inhibitor. Here are the sentences from the research articles:
 Justification Prompt:      
-> I will give you a set of sentences from research articles that have to do with optic nerve regeneration. These sentences will have a molecule, represented by "[MASK1]", which is either a promoter or inhibitor of optic nerve regeneration. Please respond with if this molecule is a promoter or inhibitor of optic nerve regeneration. Please justify your answer. Here are the sentences from the research articles:
+> I will give you a set of sentences from research articles that have to do with optic nerve regeneration. These sentences will have a molecule, represented by "[MASK1]", which is either a promoter or inhibitor of optic nerve regeneration. Please respond with if this molecule is a promoter or inhibitor of optic nerve regeneration. Please justify your answer. Here are the sentences from the research articles:  
 
 The original purpose of the one-answer prompt was to save some tokens on the response if we were to use an API call in the future. However, after testing the responses we found that the justification prompt was able to get more accurate classifications of the molecules. Therefore, we used the justification prompt moving forward. Ocassionaly, GPT would not give an answer saying there was not enough information or it was too ambigious. In these cases we would respond with "Please pick an option" which forced it to choose a class. 
 
 **Token Size**      
-The GPT model we first began with was GPT 3.5 which has a max token size of 4906 tokens. Therefore, we had to ensure the prompts plus all masked sentences fit under the token limit. To determine the token size without making an api call we can use the tiktoken library. To begin we only began with prompts + masked sentences for molecules < 4905 tokens. The responses were fed through the web interface for GPT 3.5 and responses were manually saved in dictionaries with the key being the primary name of the molecule and the value being the label from GPT. The results for the one-answer prompts and justify prompts for these molecules < 4905 tokens are below: 
+The GPT model we first began with was GPT 3.5 which has a max token size of 4906 tokens. Therefore, we had to ensure the prompts plus all masked sentences fit under the token limit. To determine the token size without making an api call we can use the tiktoken library. To begin we only began with prompts + masked sentences for molecules < 4905 tokens. The responses were fed through the web interface for GPT 3.5 and responses were manually saved in dictionaries with the key being the primary name of the molecule and the value being the label from GPT. The results for the one-answer prompts and justify prompts for these molecules < 4905 tokens are below:     
 
 GPT one-answer prompt results:      
 <img width="412" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/08cdb42d-c788-4ec8-ab00-de0886a74fc9">
@@ -206,7 +206,7 @@ You can see the f-1 score is excellent here and surpasses that of the molecules 
 
 The results for both molecules <4905 tokens and molecules >4905 tokens are below. 
 
-All Molecules (41 molecules) Results: 
+All Molecules (41 molecules) Results:     
 <img width="411" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/9778eadf-88e4-40fb-a1e2-f89e5801098f">
 
 **Evaluating GPT on Wet-Lab Labelled Molecules**     
@@ -214,7 +214,7 @@ Just like the BERT model we used GPT to see how well it could evaluate molecules
 
 We first went through the wet lab team labels and manually converted each label as: "P" - promoter, "I" - Inhibitor, "N" - Neither, and "B" - Both. These were saved in new excel files with the wet lab team member and "Curated" appended at the end of the file name (eg, CK_Molecules_To_Label_Curated.xlsx). We extracted 111 molecules with 69 being promoters and 42 being inhibitors for this evaluation. However, after going through the corpus only 78 molecules were able to be found using their primary name and other names. This is most likely due to difficulty of finding the molecules in a sentence due to things like punctuation, end of sentence handling, etc. From these we had to remove any molecules that were also known molecules which brought our molecules down to 73. This consisted of 44 promoters and 29 inhibitors. These masked sentences were saved as a json at: Code/Sentence Classification/Output/Combined_Sentences_Per_Molecule/masked_wet_lab_73_molecules.json
 
-Now we created a prompt in the same manner as above for the known molecules. The molecules were also split by tokens < 4905 and tokens > 4095 (including the prompt). 60 molecules were <4905 tokens and 13 molecules were >4905 tokens. Just like above if GPT did not provide an answer we would say "Please pick an option". The results are below:
+Now we created a prompt in the same manner as above for the known molecules. The molecules were also split by tokens < 4905 and tokens > 4095 (including the prompt). 60 molecules were <4905 tokens and 13 molecules were >4905 tokens. Just like above if GPT did not provide an answer we would say "Please pick an option". The results are below:    
 
 Results for Wet Lab Labeled Molecules <4905 (57 molecules):        
 <img width="425" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/33909758-4253-43ac-9d40-6ace57793f9c">               
@@ -227,12 +227,62 @@ You can see the f-1 and accuracy is way better for molecules with more sentences
 Results for All Molecules (70 molecules):       
 <img width="421" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/93c8db38-8204-4875-896d-0fa7ead5f498">
 
+### GPT with Confidence Scores 
+Could we somehow quantitively evaluate how "much" of a promoter or inhibitor a molecule is? To answer this question we can ask GPT to give us a confidence score on its label for a molecule. 
 
 
 Questions: 
 - Should we ask it to "Please pick an option" or to keep trying instances until it gets it? 
 - How should we ask confidence scores? 
 - 
+
+### BERT Revisited 
+After creating the masked molecule dataset above for GPT we can use this as a better dataset to train BERT. Recall BERT was previously trained on a per-sentence basis with the molecules from the sentence removed rather than on groups of sentences with the molecules masked. The code to train a BERT model with this new dataset is found in BERT/Masked Molecule Sentences - BERT 2 Class Training.ipynb.    
+
+The steps to train BERT on this dataset is as follows:     
+1. Load in the masked molecule sentence dataset which consists of the molecule name as the key and the sentences of the molecule as the value. 
+2. For BERT we need the keys to be the sentences and the values to be the label as 1 or 0. Conver the above dictionary into this format. 
+3. With this we get the 24 promoters and 17 inhibitors with an average character length of 27,479 for a molecule's sentences.
+4. For BERT the maximum token-size allowed is 512. We will have to split our sentences's for a given molecule, using sentence boundaries so as not to cut the sentence in half, into chunks with < 512 tokens. This is similar with what we had to do with GPT but with a token size of 4906. We now have 247 promoter sentence chunks and 348 inhibitor sentence chunks.  
+5. We then create our BERT model from huggingface. The tokenizer used is the 'bert-base-uncased' tokenizer with max_lenth=512. The model used is the BertForSequenceClassification which adds a classifier layer on top of the BERT model to help us classify our sentences. 
+6. We then train our model with the below paramaters and the results on the validation sentences are shown below.
+
+Training arguments for BertForSequenceClassification:           
+<img width="639" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/fd7237cd-736a-4c67-b837-387988f34eea">
+
+Training and Validation Loss:        
+<img width="648" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/2a851013-8ded-4262-bdf2-43436bba5820">
+
+Results on Validation Sentence Chunks for BERT:          
+<img width="388" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/4fb31f4a-a39d-4990-9491-0506101b22cb">      
+As you can see the results are very good on the validation dataset but it's overfitted.
+
+### Combatting Overfitting 
+As you can see from the previous results the model definitely overfits. The BERT model from huggingface already implements dropout with a default value of .1 drouput. L2 regularization is also implemented by the weight_decay parameter. Let's keep it simple then and only do 5 epochs so it stops halfway through (which is about where it started to overfit). 
+
+Training arguments for early stopping:        
+<img width="650" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/066b440c-6be2-4d85-8982-f56ed60a7784">
+
+Training and Validation Loss:       
+<img width="624" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/a6a1e403-9a5a-4e68-bf22-56a5d4beb32c">
+
+Results on Validation Sentence Chunks:      
+<img width="410" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/822b59c3-605a-4672-88b2-762c5d72b0e6">
+As you can see the f-1 is way worse when you don't allow it to overfit.
+
+### BERT Revisitied Conclusion
+I don't believe BERT is going to be a good model for us to use in classifying these molecules. Our dataset is too small and BERT overfits too easily on it. When you don't give it a chance to overfit it produces a significantly worse F1 scores than the GPT model does on the known molecules while also having a limitation of 512 tokens chunks for each molecule which does not allow for the full context of a molecule. 
+
+## Future Steps 
+- [ ]  Regraph Word2Vec embeddings with known molecules in graphsage and see if you get similar clusters that group on pathways
+    - [ ]  Get F1 when comparing known molecules to “promoter” and “inhibitor”
+    - [ ]  Get F1 when comparing wet lab labelled molecules to “promoter” and “inhibitor”
+- [ ]  Graph BPE and see how clusters are
+    - [ ]  Get F1 when comparing known molecules to “promoter” and “inhibitor”
+    - [ ]  Get F1 when comparing wet-label molecules to “promoter” and “inhibitor”
+- [ ]  Using Logistic Regression with Wet Lab Molecules how is the F1?
+- [ ]  Using Naive-Bayes with Wet Lab Molecules how is the F1?
+- [ ]  Using GPT4 which would allow for longer token sizes for input. Unfortunately the cost is very high and the web API has a cap of 25 messages every 3 hours. 
 
 
 
