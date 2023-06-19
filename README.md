@@ -100,7 +100,9 @@ To determine how much the word embedding model captured we looked at similar wor
 We also plotted the word embeddings using PCA to determine if any meaningful clustering could be seen:  
 ![image](https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/45d412b3-2c15-41de-ac1c-aabdfd69db8a)
 
-We compared this word embedding model trained on all research papers to the gensim model just trained on the latest years of research papers (i.e the last time period binning see above) to see if the noise from earlier papers were resulting in worse representations of words. To evaluate which model was better we used the similarity scores between each known promtoer and inhibitor to the words 'promote' and 'inhibit'. If the 'promote' similarity score was greater than 'inhibit' we classified that molecule as a promoter and vice versa. We then compared these to the true labels of the molecule. Using the gensim model trained over the entire dataset we got an accuracy of 62%. With the gensim model trained just over the most recent years we got anaccuracy of 65%.
+We compared this word embedding model trained on all research papers to the gensim model just trained on the latest years of research papers (i.e the last time period binning see above) to see if the noise from earlier papers were resulting in worse representations of words. To evaluate which model was better we used the similarity scores between each known promtoer and inhibitor to the words 'promote' and 'inhibit'. If the 'promote' similarity score was greater than 'inhibit' we classified that molecule as a promoter and vice versa. We then compared these to the true labels of the molecule. Using the gensim model trained over the entire dataset we got an accuracy of 62%. With the gensim model trained just over the most recent years we got an accuracy of 65%.   
+
+With results of 62% using all years and 65% using last binned years the GloVe approach is about 10-15% worse than BERT and GPT in predicting known moleculess and inhibitors
 
 ## GraphSAGE
 
@@ -296,21 +298,76 @@ Training and Validation Loss:
 <img width="624" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/a6a1e403-9a5a-4e68-bf22-56a5d4beb32c">
 
 Results on Validation Sentence Chunks:  
-<img width="410" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/822b59c3-605a-4672-88b2-762c5d72b0e6">
-As you can see the f-1 is way worse when you don't allow it to overfit.
+<img width="410" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/822b59c3-605a-4672-88b2-762c5d72b0e6">    
+As you can see the f-1 is way worse when you don't allow it to overfit. Looks like it's just guessing 0 a lot.           
 
-### BERT Revisitied Conclusion
+TO DO: Evaluate with wet lab molecules but have to figure out how to compare predicted_labels and true_labels because predicted_labels are based off off sentence chunks whereas true labels are just the molecule labels. Need to find a way to figure out which molecule is in the sentence chunk and assign that sentence chunk that correct label...
 
-I don't believe BERT is going to be a good model for us to use in classifying these molecules. Our dataset is too small and BERT overfits too easily on it. When you don't give it a chance to overfit it produces a significantly worse F1 scores than the GPT model does on the known molecules while also having a limitation of 512 tokens chunks for each molecule which does not allow for the full context of a molecule.
+### Data Curation for better BERT Results 
+A potential problem with the above BERT approach is that it is training on not good quality sentences and therefore, it is learning erroneous associations that cause it to perform poorly. Furthermore, the classes are unbalanced when splitting into sentence chunks. To fix the low-quality sentences issue, we manually inspected the data and found the promoters 'l1' and 'c3' were picked up in a lot of sentences that didn't have to do with those molecules. Therefore we removed these molecules from the training sentences and to counteract the loss of promoters we removed 'mag' and 'rock' from the inhibitors. Notably, 'rock' is also picked up in a lot of sentences where it is not actually referring to the molecule. These erroneous sentences for 'l1', 'c3', and 'rock' were primarily from earlier papers.    
+
+After removing these low-quality sentences we got much better results. We first trained it using 10 epochs which resulted in some overfitting:    
+<img width="604" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/e5ed22a7-1eb1-45e1-ba76-f904e0947883">      
+
+Therefore we trained it for only 8 epochs resulting in the following training and validation loss:      
+<img width="577" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/f11ebaa5-ebd9-4bd4-b603-28970ff89ec1">     
+
+The f-1 scores for the test holdout sentences after training were pretty good and comparable to that of GPT on the known molecules/inhibitors:     
+ <img width="428" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/a60b5195-348b-4688-95b5-4957bd7522ea">     
+
+We then tested our model on the wet lab team sentences. This was done on a per-sentence basis meaning the molecule's masked sentences were split into <512 tokens for BERT to handle and each sentence was evaluated to see if BERT correctly labeled that sentence as belonging to a promoter or inhibitor. There were 142 sentences from inhibitor molecules and 312 from promoter molecules:       
+<img width="401" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/88b9fce2-d7e5-4da7-a898-0ca3e4cd7bfc">      
+
+Then, to see how BERT could label entire molecules rather than sentences we took the mode of all the predicted labels for each sentence of a molecule and use that mode predicted label as the predicted label for that molecule. The results are very good:     
+<img width="383" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/2d047387-5ec1-4047-86bd-103a3bf6f12c">      
+
+We then stratified molecules by having total sentences >4905 GPT tokens vs <4905 GPT tokens to see how it compared to GPT since GPT performed much better on molecules with more sentences. **It actually outperformed GPT in lower token total sentences but worse in higher token total sentences.**      
+<img width="440" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/9ac448a3-1621-4f9d-9020-f0bb9dc635f8">      
+Greater than 4905 tokens:      
+<img width="387" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/ef1aa779-2e2e-4297-b75c-4952acead315">
+
+### BERT Confidence Scores 
+The BERT labeling of sentences was based on the biggest probability of the softmax output. However we can use the raw probabilties to get a confidence score for a predicted label. To see if higher confidence scores resulted in higher accuracy predicted_labels we can do a T-test between the means of the confidence scores that were not accurate and confidence scores for sentences that were accurate.   
+
+These were done a per-sentence basis. 
+
+Histogram of all confidence scores on a per-sentence basis:     
+<img width="495" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/2e58c0da-6946-41e8-93fd-924aa50df05c">     
+
+Histogram of all confidence scores on a per-sentence basis:         
+<img width="482" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/d70c916a-e986-47be-aba4-b76da8852bc6">      
+
+T-test on a per-sentence for known molecules/inhibitors:      
+<img width="232" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/4c98a663-bd86-46ff-9165-a6ed7c6cc872">          
+
+T-test on a per-sentence for wet lab molecules:      
+<img width="267" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/3efc3218-32cc-473c-870a-00c1b5aa7f04">     
+
+**Was better at using confidence scores for the known molecules/inhibitors than the wet lab team ones on a per-sentence basis**
+
+When looking at confidence scores on a **per-molecule basis** however, then it looks like the scores became significant. We used the average confidence scores across all of a molecule's sentences to determine that molecule's confidence score. 
+
+Histogram of confidence scores on a per-molecule basis:     
+<img width="479" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/431d60b2-7df5-45bb-b613-d83e25595aea">     
+
+T-test on a per-molecule basis for wet-lab molecules: 
+<img width="237" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/cae3cdce-8f40-4db2-b3c0-0e641712a507">
+
+Even though, it is significant you can see the means are 0.8 vs 0.84 so practically speaking not sure how useful it is....
+
 
 ## Future Steps
 
-- [ ] Regraph Word2Vec embeddings with known molecules in graphsage and see if you get similar clusters that group on pathways
-  - [ ] Get F1 when comparing known molecules to “promoter” and “inhibitor”
-  - [ ] Get F1 when comparing wet lab labelled molecules to “promoter” and “inhibitor”
-- [ ] Graph BPE and see how clusters are
-  - [ ] Get F1 when comparing known molecules to “promoter” and “inhibitor”
-  - [ ] Get F1 when comparing wet-label molecules to “promoter” and “inhibitor”
-- [ ] Using Logistic Regression with Wet Lab Molecules how is the F1?
-- [ ] Using Naive-Bayes with Wet Lab Molecules how is the F1?
-- [ ] Using GPT4 which would allow for longer token sizes for input. Unfortunately the cost is very high and the web API has a cap of 25 messages every 3 hours.
+- [✔️] Regraph Word2Vec embeddings with known molecules in graphsage and see if you get similar clusters that group on pathways
+  - [✔️] Get F1 when comparing known molecules to “promoter” and “inhibitor”
+  - [✔️] Get F1 when comparing wet lab labelled molecules to “promoter” and “inhibitor”
+- [✔️] Graph BPE and see how clusters are
+  - [✔️] Create a BPE model trained just on recent year and see how that does 
+  - [✔️] Get F1 when comparing known molecules to “promoter” and “inhibitor”
+  - [✔️] Get F1 when comparing wet-label molecules to “promoter” and “inhibitor”
+- [] Use confidence scores with known molecules using GPT and see if they correlate to accuracy of predicted label
+- [✔️] Check BERT model confidence scores on a per molecule basis 
+- [ ] Test BERT model on explicit sentences to see how it does
+- [❌] Using Logistic Regression with Wet Lab Molecules how is the F1? -> However would have to convert wet lab molecule sentences to freq vectors so not straightforward will take time probably not worth it since won't be included in final paper
+- [❌] Using Naive-Bayes with Wet Lab Molecules how is the F1? -> However would have to convert wet lab molecule sentences to smoothed freq vectors so not straightforward will take time probably not worth it since won't be included in final paper
+- [❌] Using GPT4 which would allow for longer token sizes for input. Unfortunately the cost is very high and the web API has a cap of 25 messages every 3 hours.
