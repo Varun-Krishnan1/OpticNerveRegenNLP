@@ -219,13 +219,15 @@ The original purpose of the one-answer prompt was to save some tokens on the res
 The GPT model we first began with was GPT 3.5 which has a max token size of 4906 tokens. Therefore, we had to ensure the prompts plus all masked sentences fit under the token limit. To determine the token size without making an api call we can use the tiktoken library. To begin we only began with prompts + masked sentences for molecules < 4905 tokens. The responses were fed through the web interface for GPT 3.5 and responses were manually saved in dictionaries with the key being the primary name of the molecule and the value being the label from GPT. The results for the one-answer prompts and justify prompts for these molecules < 4905 tokens are below:
 
 GPT one-answer prompt results:  
-<img width="412" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/08cdb42d-c788-4ec8-ab00-de0886a74fc9">
+<img width="400" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/86b2b20f-fb83-4285-970e-bed28867784c">
 
 GPT justify-answer prompt results:  
-<img width="412" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/35625634-a670-4d41-b5e4-782e77367566">
+<img width="405" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/f3eef0e6-719f-4519-8fed-6ac22fa0b018">
 
-To test the molecules that had a prompt size + masked sentence size > 4905 tokens we split the sentences for each given molecule into separate files that were each under the token limit. The files were split by sentences so a sentence did not get cut off between files. To get the results for a given molecule we gave separate GPT instances the sentences from each file for a molecule. We then took the mode of the class label from each file that GPT outputted and used that as the class label for the molecule. The results for these molecules > 4095 tokens are below.
-<img width="416" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/9c2146e4-0c41-45df-8f88-7c92bd7dd2a4">
+
+To test the molecules that had a prompt size + masked sentence size > 4905 tokens we split the sentences for each given molecule into separate files that were each under the token limit. The files were split by sentences so a sentence did not get cut off between files. To get the results for a given molecule we gave separate GPT instances the sentences from each file for a molecule. We then took the mode of the class label from each file that GPT outputted and used that as the class label for the molecule. We only used the **justify answer** prompt due to it superior performance on the molecules with sentences <4905 tokens. The results for these molecules > 4095 tokens are below.      
+<img width="390" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/cbe992bb-516a-4506-92ea-8f6fc14e833b">      
+
 
 You can see the f-1 score is excellent here and surpasses that of the molecules < 4095 tokens. This is perhaps due to the molecules with more tokens are more studied in literature and therefore, have more clear categorizations as promoter or inhibitor. These molecules also perhaps have greater representation from recent years where recent years have higher-quality data for GPT to interpret. Also more sentences allows GPT to have more data to work with.
 
@@ -256,13 +258,24 @@ Results for All Molecules (70 molecules):
 
 ### GPT with Confidence Scores
 
-Could we somehow quantitively evaluate how "much" of a promoter or inhibitor a molecule is? To answer this question we can ask GPT to give us a confidence score on its label for a molecule.
+Could we somehow quantitively evaluate how "much" of a promoter or inhibitor a molecule is? To answer this question we can ask GPT to give us a confidence score on its label for a molecule. The following prompt was used for these purposes:     
+> Given the following sentences from a scientific study in the field of optic nerve regeneration, where a specific molecule is masked, can you determine whether the masked molecule acts as a promoter or inhibitor of optic nerve regeneration? Provide your best guess, a confidence score from 0 (no confidence) to 100 (absolute confidence), and justify your answer based on the context given in the sentences. Here are the sentences:
 
-Questions:
+This prompt was followed by the masked sentences for the molecules. Here are the results of the prompt with molecules <4905 tokens: 
+<img width="406" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/739ed206-c3f0-4708-bb25-ac5812174c22">        
 
-- Should we ask it to "Please pick an option" or to keep trying instances until it gets it?
-- How should we ask confidence scores?
--
+
+**It actually performs exactly equivalent to our previous justify answer prompt demonstrating both the reliability of GPT's responses as well as no change in effectiveness by adding confdience scores** 
+
+Here are the results of the prompt with molecules >4905 tokens:      
+<img width="406" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/a6ce7578-555f-4676-9c19-8f75404980f9">      
+
+**It actually performs a little bit worse to our previous justify answer prompt but still demonstrates both the reliability of GPT's responses as well as limited change in effectiveness by adding confdience scores** 
+
+Total Molecules:     
+<img width="386" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/5025bb2f-5e26-4c44-b173-22c834fb219f">     
+
+**Again Very Similar to without confidence score**
 
 ### BERT Revisited
 
@@ -365,9 +378,13 @@ Even though, it is significant you can see the means are 0.8 vs 0.84 so practica
   - [✔️] Create a BPE model trained just on recent year and see how that does 
   - [✔️] Get F1 when comparing known molecules to “promoter” and “inhibitor”
   - [✔️] Get F1 when comparing wet-label molecules to “promoter” and “inhibitor”
-- [] Use confidence scores with known molecules using GPT and see if they correlate to accuracy of predicted label
-- [✔️] Check BERT model confidence scores on a per molecule basis 
+- [✔️] Use confidence scores with known molecules using GPT and see if they correlate to accuracy of predicted label - they do NOT 
+- [✔️] Check BERT model confidence scores on a per molecule basis
+- [ ] Create Slides for results and convert Readme.md to word document 
+- [ ] Meet with Dr. J to see next steps for final GPT model for known molecules and 73 wet lab labeled 
+- [ ] For final decided GPT model remove l1, c3, mag, and rock from results since BERT did not use those for known molecules
 - [ ] Test BERT model on explicit sentences to see how it does
+- [ ] If you really want to evaluate performance you need to have manual graders for the masked sentences that GPT and BERT are given and see how well they do to a manual labeler. Because right now we are seeing its accuracy when compared to someone that has access to all literature to make a classification.
 - [❌] Using Logistic Regression with Wet Lab Molecules how is the F1? -> However would have to convert wet lab molecule sentences to freq vectors so not straightforward will take time probably not worth it since won't be included in final paper
 - [❌] Using Naive-Bayes with Wet Lab Molecules how is the F1? -> However would have to convert wet lab molecule sentences to smoothed freq vectors so not straightforward will take time probably not worth it since won't be included in final paper
 - [❌] Using GPT4 which would allow for longer token sizes for input. Unfortunately the cost is very high and the web API has a cap of 25 messages every 3 hours.
