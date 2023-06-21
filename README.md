@@ -368,6 +368,8 @@ T-test on a per-molecule basis for wet-lab molecules:
 
 Even though, it is significant you can see the means are 0.8 vs 0.84 so practically speaking not sure how useful it is....
 
+## Using BioBERT 
+BioBERT offers an even better performance than BERT due to its fine-tuning of the bert-base-uncased model on scientific material. The BioBERT model used here was from huggingface at dmis-lab/biobert-base-cased-v1.2. This is a CASED model therefore we had to regenerate the papers masked sentences to be cased. This involved going to Extracting Causal Verbs.ipynb to remove the pre-processing to lower all the text. 
 
 ## Future Steps
 
@@ -383,6 +385,7 @@ Even though, it is significant you can see the means are 0.8 vs 0.84 so practica
 - [ ] Create Slides for results and convert Readme.md to word document 
 - [ ] Meet with Dr. J to see next steps for final GPT model for known molecules and 73 wet lab labeled 
 - [ ] For final decided GPT model remove l1, c3, mag, and rock from results since BERT did not use those for known molecules
+- [ ] Try removing 'lif' from BERT training as well...
 - [ ] Test BERT model on explicit sentences to see how it does
 - [ ] If you really want to evaluate performance you need to have manual graders for the masked sentences that GPT and BERT are given and see how well they do to a manual labeler. Because right now we are seeing its accuracy when compared to someone that has access to all literature to make a classification.
 - [❌] Using Logistic Regression with Wet Lab Molecules how is the F1? -> However would have to convert wet lab molecule sentences to freq vectors so not straightforward will take time probably not worth it since won't be included in final paper
