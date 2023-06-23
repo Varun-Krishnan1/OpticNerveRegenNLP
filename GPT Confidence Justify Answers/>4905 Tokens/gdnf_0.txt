@@ -1,0 +1,5 @@
+Based on the context given in the sentences, the masked molecule is likely to act as a promoter of optic nerve regeneration.
+
+Confidence score: 80
+
+Justification: The sentences mention that the molecule is secreted by Schwann cells, which are known to play a crucial role in promoting axonal regeneration. Additionally, the sentences highlight that the molecule is a potent survival factor for motoneurons and that it can initiate axon regrowth. Furthermore, it is stated that the molecule modifies reactive astrogliosis, allowing robust axonal regeneration through Schwann cell-seeded guidance channels after spinal cord injury. These findings strongly suggest that the masked molecule acts as a promoter of optic nerve regeneration.

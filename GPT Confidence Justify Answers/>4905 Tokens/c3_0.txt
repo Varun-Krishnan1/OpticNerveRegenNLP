@@ -1,0 +1,9 @@
+Based on the given context, it is likely that the masked molecule acts as a promoter of optic nerve regeneration. Here's the justification:
+
+The molecule promotes neurite outgrowth in neuroblastoma cells when injected (sentence: "neurite outgrowth was induced in neuroblastoma cells by microinjection of clostridium botulinum [MASK1] exoenzyme a toxin which specifically inactivates rho").
+It inactivates rho, a protein known to inhibit axon growth (sentence: "treatment of pc12 cells with [MASK1] enzyme to inactivate rho and transfection with dominant negative rho allowed neurite growth on inhibitory substrates").
+It allows primary retinal neurons to extend neurites on myelin-associated glycoprotein, an inhibitory substrate (sentence: "primary retinal neurons treated with [MASK1] extended neurites on myelin-associated glycoprotein").
+It promotes axonal regrowth in injured optic nerves (sentence: "after [MASK1] treatment numerous cut axons traversed the lesion to regrow in the distal white matter of the optic nerve").
+It selectively adp-ribosylates rho in its effector domain without affecting other members of the rho family (sentence: "we have made use of the [MASK1] enzyme from clostridium botulinum that selectively adp-ribosylates rho in its effector domain without affecting rac and cdc42").
+Its treatment stimulates axon growth and functional recovery after spinal cord injury (sentence: "treating mice with a single injection or gel foam application of [MASK1] transferase [MASK1] which inactivates by adp-ribosylation of the effector domain promotes regrowth of cst fibers after sci and improves locomotion").
+Confidence score: 90. The evidence suggests that the masked molecule acts as a promoter of optic nerve regeneration, but additional information beyond the given context could further confirm its role.

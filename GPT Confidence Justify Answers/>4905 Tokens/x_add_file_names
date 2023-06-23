@@ -1,0 +1,9 @@
+import os
+
+strings = ['l1_0.txt', 'l1_1.txt', 'l1_2.txt', 'ngr_0.txt', 'ngr_1.txt', 'ngr_2.txt', 'ngr_3.txt', 'mag_0.txt', 'mag_1.txt', 'mag_2.txt', 'mag_3.txt', 'mag_4.txt', 'mag_5.txt', 'mag_6.txt', 'mag_7.txt', 'mag_8.txt', 'rock_0.txt', 'rock_1.txt', 'c3_0.txt', 'c3_1.txt', 'laminin_0.txt', 'laminin_1.txt', 'laminin_2.txt', 'laminin_3.txt', 'laminin_4.txt', 'laminin_5.txt', 'laminin_6.txt', 'bdnf_0.txt', 'bdnf_1.txt', 'bdnf_2.txt', 'bdnf_3.txt', 'bdnf_4.txt', 'bdnf_5.txt', 'bdnf_6.txt', 'bdnf_7.txt', 'cntf_0.txt', 'cntf_1.txt', 'cntf_2.txt', 'cntf_3.txt', 'igf-1_0.txt', 'igf-1_1.txt', 'cspg_0.txt', 'cspg_1.txt', 'cspg_2.txt', 'cspg_3.txt', 'gdnf_0.txt', 'gdnf_1.txt', 'tenascin_0.txt', 'tenascin_1.txt', 'netrin-1_0.txt', 'netrin-1_1.txt', 'rhoa_0.txt', 'rhoa_1.txt', 'omgp_0.txt', 'omgp_1.txt', 'pten_0.txt', 'pten_1.txt', 'pten_2.txt', 'pten_3.txt', 'socs3_0.txt', 'socs3_1.txt', 'stat3_0.txt', 'stat3_1.txt', 'opn_0.txt', 'opn_1.txt']
+
+for string in strings:
+    filename = string
+    open(filename, 'w').close()
+
+print("Empty text files created successfully.")

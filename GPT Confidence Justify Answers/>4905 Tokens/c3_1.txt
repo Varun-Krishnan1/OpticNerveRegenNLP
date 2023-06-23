@@ -1,0 +1,13 @@
+Based on the context given in the sentences, it is likely that the masked molecule acts as a promoter of optic nerve regeneration.
+
+Confidence score: 85
+
+Justification:
+
+The first sentence states that mice treated with [MASK1] after spinal cord injury showed impressive functional recovery. This suggests that [MASK1] has a positive effect on regeneration since functional recovery is a result of successful regeneration.
+The second sentence mentions the inactivation of rho with [MASK1] to promote regeneration and functional recovery after spinal cord injury. This further supports the idea that [MASK1] acts as a promoter of regeneration.
+In another sentence, it is mentioned that after treatment with [MASK1], a larger number of axons were able to grow into the distal part of the optic nerve compared to the control groups. This indicates that [MASK1] enhances axon regeneration, again suggesting a promoting effect.
+The sentence "in vivo the regeneration of retinal ganglion cell axons in the optic nerve can be stimulated by [MASK1] application" provides additional evidence that [MASK1] promotes regeneration.
+The sentence "retinal ganglion cells treated with [MASK1] regrew through the lesion site into the distal white matter of the optic nerve following optic-nerve crush" indicates that [MASK1] treatment leads to regrowth of damaged cells, which is consistent with a promoting effect.
+The overall tone and context of the sentences strongly suggest that [MASK1] has a positive influence on optic nerve regeneration.
+Although there is a possibility of misinterpretation or missing information due to the masking, the available context strongly supports the conclusion that [MASK1] acts as a promoter of optic nerve regeneration.

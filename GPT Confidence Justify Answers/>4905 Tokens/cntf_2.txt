@@ -1,0 +1,10 @@
+Based on the context provided, the masked molecule appears to be [MASK1]. My best guess is that [MASK1] acts as a promoter of optic nerve regeneration.
+
+Confidence score: 80
+
+Justification:
+
+The molecule belongs to a distinct structural family of cytokines, including interleukin-6 (IL-6), leukemia inhibitory factor (LIF), and other factors known to promote cell survival and differentiation (e.g., G-CSF, IL-11, oncostatin M) (references: "belongs to an entirely distinct structural family of four-a-helical bundle cytokines," "cytokine family sometimes called neuropoietins," "supports survival or differentiation of a wide variety of central and peripheral neurons," "supports motor neuron survival," "neurotrophic properties are also reported for [MASK1]").
+The [MASK1] receptor family signals through the JAK-STAT pathway, which is known to be involved in promoting cell survival and regeneration (reference: "receptor family is coupled to and signals through the JAK-STAT pathway").
+The soluble extracellular domain of [MASK1] receptor (cleaved from its GPI anchor) can initiate signaling upon [MASK1] binding, suggesting an active role in promoting cellular responses (reference: "soluble extracellular domain of [MASK1] receptor... can itself act with the gp130/LIFRβ complex to initiate signaling upon [MASK1] binding").
+Exogenous [MASK1] has been shown to stimulate axon regeneration of retinal ganglion cells (reference: "exogenous [MASK1] stimulates axon regeneration of retinal ganglion cells partially via endogenous [MASK1]").
