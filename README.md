@@ -438,7 +438,7 @@ After training, on the test data holdout set of the known promoters and inhibito
 <img width="390" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/dec9bf90-14b8-4134-832c-e188a7c038ee">      
 
 Confidence Score on Known Molecule Holdout Set 
-<img width="240" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/fec37e41-89b2-40a0-b4a4-af04c96a79f9">
+<img width="240" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/fec37e41-89b2-40a0-b4a4-af04c96a79f9">     
 NOTE: **Very significant**
 
 Evaluation on a **per-sentence basis** for 73 wet lab molecules:     
