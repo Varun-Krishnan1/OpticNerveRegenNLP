@@ -368,8 +368,118 @@ T-test on a per-molecule basis for wet-lab molecules:
 
 Even though, it is significant you can see the means are 0.8 vs 0.84 so practically speaking not sure how useful it is....
 
-## Using BioBERT 
-BioBERT offers an even better performance than BERT due to its fine-tuning of the bert-base-uncased model on scientific material. The BioBERT model used here was from huggingface at dmis-lab/biobert-base-cased-v1.2. This is a CASED model therefore we had to regenerate the papers masked sentences to be cased. This involved going to Extracting Causal Verbs.ipynb to remove the pre-processing to lower all the text. 
+## BioBERT 
+BioBERT offers an even better performance than BERT due to its fine-tuning of the bert-base-uncased model on scientific material. The BioBERT model used here was from huggingface at dmis-lab/biobert-base-cased-v1.2. This is a CASED model therefore we had to regenerate the papers masked sentences to be cased. 
+
+### Cased Sentences
+Generated cased sentences involved going to Extracting Causal Verbs.ipynb to remove the pre-processing to lower all the text. For some reason, only 699 docs were able to located in the regen_x data folder rather than the 700 docs that the uncased sentences were generated from. These cased sentences were then imported into Generating Masked Training Sentences.ipynb to generate the masked sentences for the known promoters and inhibitors as well as the wet lab molecules. For the known promoters and inhibitors, the cased sentences were used to generate cased_masked_known_molecules.json and the number of sentences per molecule were found to essentially match between the cased and uncased version:      
+
+Comparison of total length of letters for sentences between cased and uncased masked sentences of known promoters and inhibitors:      
+![image](https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/90fb0e2e-c8cc-4376-b923-c0155e558190)     
+
+We then created the masked molecules for the wet lab molecules and stored it in "cased_masked_wet_lab_73_molecules.json". However, for some reason there was a big discrepancy between the number of total letters in all the sentences between the cased (21029) and uncased (82773) sentences of 'fgf2' for an unknown reason. Also we were able to get sentences from 97 unique molecules (102 minus the overlapping known promoters/inhibitors) rather than the 73 using the uncased sentences. All the other molecules matched up pretty well:     
+
+Comparison of total length of letters for sentences between cased and uncased masked sentences of known promoters and inhibitors:       ![image](https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/e6aacaf4-6159-4c0a-8711-8161c4379330)     
+
+### Training BioBERT 
+The advantage of using the hugging face transformers ecosystem is that the only difference needed to use the biobert model was to change the model name for the imported transformers model as well as its respective tokenizer. The training process remained the same: reading in the cased sentences, converting them into a dictionary with sentence:label, splitting the sentences into 512 tokens each with the same corresponding label, and training the model. Note that because the biobert tokenizer is being used the split of promoter vs inhibitor sentences for the known molecules was slight different. The training dataset consisted of ____ promoter sentences and ____ inhibitor sentences. We also removed l1, c3, mag, and rock due to the drastically better results that had shown with base-bert. 
+
+Training and validation loss for BioBERT trained on 10 epochs:      
+<img width="361" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/8e41a882-b792-4f35-a32f-4ac3cf391146">      
+NOTE: This is similar to the bert-base 10 epochs training and validation loss where it started to overfit around 180 training steps.    
+Similar to the bert-base model we implemented early stopping at 8 epochs to limit the trainign to 200 training steps to prevent overfitting. 
+Training and validation loss for BioBERT trained on 8 epochs:         
+<img width="361" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/0fb97cfa-8278-471e-b3f1-609407662b48">     
+
+### Evaluationg BioBERT 
+After training, on the test data holdout set of the known promoters and inhibitors, BioBERT trained on 8 epochs without l1,c3, mag, and rock resulted in the following results:     
+<img width="404" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/1c7e329b-6a7a-453b-a835-a5183f78a2bc">      
+NOTE: This is pretty comparable to the bert-base version. 
+
+We then evaluated our trained BioBERT molecules on the wet lab molecules and got the following results. We first evaluated it on the 97 cased masked wet lab molecule's sentences we were able to retrieve with the following results. These are the **per-sentence basis** results:          
+<img width="404" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/6e5d8d37-1b1e-4db9-964d-546d566c18b0">      
+
+Then we did the 97 cased masked wet lab molecule's sentences on a **per-molecule basis** similar to bert-base:      
+<img width="404" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/8da1b200-5028-4cb9-83ec-38e01b8c6f6a">     
+
+To evenly compare bert-base and biobert we used the 73 wet lab molecules that bert-base predicted. Here are the results on a **per-sentence basis**:     
+<img width="404" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/49aa259b-a58e-4c57-abe4-8dc34f6c5a15">     
+
+Then we used the 73 wet lab molecules on a **per-molecule basis**:        
+<img width="404" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/8de4dd3c-7b50-46b5-ad41-e9ddfd50c436">     
+
+Finally, similar to bert-base we stratified based on >4905 tokens and <4905 tokens.       
+BioBERT 73 wet lab molecules <4905 tokens on a **per-molecule basis**:     
+<img width="404" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/9f24ab19-7ac7-4e00-843b-d2bdd09c800a">     
+
+BioBERT 73 wet lab molecules >4905 tokens on a **per-molecule basis**:      
+<img width="404" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/cdc60a15-c638-4e0b-9be8-ef832c8da639">
+ 
+Remember, all the above results are based on the CASED masked sentences for the wet lab molecules. We also tried to run it with the uncased sentences to see if it resulted in a difference. However, it yielded **worse results** which makes sense. Check the "BioBert 8 Epochs removing 4 mo" under the UNCASED column to see full results. 
+
+### BioBERT and Confidence Scores 
+A similar analysis of confidence scores was done with BioBERT as was done with bert-base to see if confidence scores correlated with prediction accuracy on a per-sentence or per-molecule basis. 
+
+T-test between BioBERT accuracy and confidence score on a **per-sentence basis**:      
+<img width="404" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/e8b1f88a-a2f0-4804-bd51-ad3f18fb3590">      
+NOTE: **IS significant**     
+ 
+T-test between BioBERT accuracy and confidence score on a **per-molecule basis**:      
+<img width="404" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/a99a8619-6015-4cec-b8b4-9ee4906c9921">      
+NOTE: **IS NOT significant**      
+
+## Bert-Base without l1,c3,mag,rock AND lif: 
+Empirically looking at the masked sentences for the known molecules as well as **observing molecules that chatGPT struggled with** we identified LIF as another molecule that had a lot of noise in its sentences. Hence, we trained a bert-based model without lif while also continuing to have l1,c3,mag, and rock removed. Below are the results:     
+
+Training and validation loss for Bert-base trained on 8 epochs:         
+<img width="518" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/0a60db12-9833-4bdd-a931-d40d1928e2de">     
+
+After training, on the test data holdout set of the known promoters and inhibitors:     
+<img width="390" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/dec9bf90-14b8-4134-832c-e188a7c038ee">      
+
+Confidence Score on Known Molecule Holdout Set 
+<img width="240" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/fec37e41-89b2-40a0-b4a4-af04c96a79f9">
+NOTE: **Very significant**
+
+Evaluation on a **per-sentence basis** for 73 wet lab molecules:     
+<img width="353" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/6dd44827-708a-4bd2-9bdd-9a1b33e98347">       
+
+Evaluation on a **per-molecule basis** for 73 wet lab molecules:     
+<img width="387" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/d6465bba-07e8-4c67-af7b-fa637e9b822c">
+   
+Evaluation on a **per-molecule basis** for 73 wet lab molecules <4905 tokens:      
+<img width="387" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/056df5ef-75c1-410e-8011-9a771802f103">       
+
+Evaluation on a **per-molecule basis** for 73 wet lab molecules >4905 tokens:      
+<img width="387" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/056df5ef-75c1-410e-8011-9a771802f103">    
+<img width="387" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/02ff0e39-abfe-4937-82be-8f971430134f">
+
+Confidence score vs Prediction Accuracy on a **per-sentence** basis:      
+<img width="317" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/cf875ca0-fbae-46a3-b2cc-a6c3719010ea">     
+
+Confidence score vs Prediction Accuracy on a **per-molecule** basis:      
+<img width="317" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/af55015f-e18f-4266-a704-4cecb5e96b6c">
+
+## Data Characterization of Sentences Per Year 
+We also wanted to see which sentences the training set of known molecules/inhibitors were coming from and compare that to the years the sentences used to predict the wet lab labeled molecules were coming from. We also compared these to the overall distribution of sentences per year in our corpus.    
+
+We first started in Extracting Causal Verb Sentences.ipynb where we mapped each of the 699 (idk why no longer 700) docs to their corresponding year in the get_docs_total function. To map a doc we had to assign a unique key to that doc which we used as the first 10 sentences of that doc concatenated without spaces. We found this results in 669 instead of 699 unique keys meaning there were 30 duplicated docs using this method. A small amount was from docs having the same first 10 sentences but we also noticed duplicated papers that were in different years. Thankfully, using our dictionary approach of masked sentences for training our bert models, duplicate sentences would be removed naturally to the nature of dictionary prior to the training of these models! The doc_to_year dictionary was saved in "Word Embeddings/Generated Models/Extracted Sentences/"     
+
+We then used Generating Masked Training Sentences.ipynb to map each sentence back to the year that sentence is from. This was done when converting our 700 docs into sentences. As we converted each doc to its sentences we used doc_to_year to save which year that sentence was from. Of course, duplicate sentences would be overriden by the last year it appeared in and we actually **found 142411 duplicated sentences out of 755,496 sentences in our corpus**. We then plotted the distribution of sentence to year in our dataset. 
+
+Sentences vs Years in Entire Corpus:     
+![image](https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/a4620c0f-8924-4474-8232-e178eef508b8)     
+
+Having this all_docs_1D_to_year dictionary we were able to also figure out the years the masked known molecules sentences were being read in from. This was done by, when saving sentences with knonw molecules in them, we read the year of that sentence and saved it in a dictinoary: known_molecules_sentences_years.     
+
+Sentences vs Years of Known Molecules Sentences:     
+![image](https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/af9c2809-9044-4f91-9acc-a089d34af836)    
+
+Finally, we could do a similar method to get the Sentences vs Years of the Wet Lab Molecules. HOWEVER, The following graph has known molecules that overlap with the wet lab molecules since that couldn't be filtered out from known_molecules_sentences_years.    
+
+Sentences vs Years of Wet Lab Sentences:     
+![image](https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/c4b80b21-7f2a-429b-b3b3-f7c2178c70a6)    
+
 
 ## Future Steps
 
@@ -382,10 +492,13 @@ BioBERT offers an even better performance than BERT due to its fine-tuning of th
   - [✔️] Get F1 when comparing wet-label molecules to “promoter” and “inhibitor”
 - [✔️] Use confidence scores with known molecules using GPT and see if they correlate to accuracy of predicted label - they do NOT 
 - [✔️] Check BERT model confidence scores on a per molecule basis
+- [✔️] Get distribution of years for masked known molecules and masked wet lab molecules
+- [✔️] Try removing 'lif' from BERT training as well...
+- [✔️] Add biobert results 
+- [✔️] Add data characterization by year results 
 - [ ] Create Slides for results and convert Readme.md to word document 
 - [ ] Meet with Dr. J to see next steps for final GPT model for known molecules and 73 wet lab labeled 
 - [ ] For final decided GPT model remove l1, c3, mag, and rock from results since BERT did not use those for known molecules
-- [ ] Try removing 'lif' from BERT training as well...
 - [ ] Test BERT model on explicit sentences to see how it does
 - [ ] If you really want to evaluate performance you need to have manual graders for the masked sentences that GPT and BERT are given and see how well they do to a manual labeler. Because right now we are seeing its accuracy when compared to someone that has access to all literature to make a classification.
 - [❌] Using Logistic Regression with Wet Lab Molecules how is the F1? -> However would have to convert wet lab molecule sentences to freq vectors so not straightforward will take time probably not worth it since won't be included in final paper
