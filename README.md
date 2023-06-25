@@ -222,7 +222,8 @@ You can see the f-1 score is excellent here and surpasses that of the molecules 
 The results for both molecules <4905 tokens and molecules >4905 tokens are below.
 
 All Molecules (41 molecules) Results:  
-<img width="411" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/9778eadf-88e4-40fb-a1e2-f89e5801098f">
+<img width="428" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/e94ac317-d96f-4cbf-91e3-256d9f4c5f0c">
+
 
 **Evaluating GPT on Wet-Lab Labelled Molecules**  
 Just like the BERT model we used GPT to see how well it could evaluate molecules manually labelled from the wet lab team. These molecules would be more challenging than the known molecules because these would be lesser known and most likely have less literature associated with it.
