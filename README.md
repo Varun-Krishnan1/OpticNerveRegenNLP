@@ -316,10 +316,11 @@ The f-1 scores for the test holdout sentences after training were pretty good an
  <img width="428" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/a60b5195-348b-4688-95b5-4957bd7522ea">     
 
 We then tested our model on the wet lab team sentences. This was done on a per-sentence basis meaning the molecule's masked sentences were split into <512 tokens for BERT to handle and each sentence was evaluated to see if BERT correctly labeled that sentence as belonging to a promoter or inhibitor. There were 142 sentences from inhibitor molecules and 312 from promoter molecules:       
-<img width="401" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/88b9fce2-d7e5-4da7-a898-0ca3e4cd7bfc">      
+<img width="422" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/f3cdd2e3-06b4-4cc5-b59f-1cc292a687fd">
 
 Then, to see how BERT could label entire molecules rather than sentences we took the mode of all the predicted labels for each sentence of a molecule and use that mode predicted label as the predicted label for that molecule. The results are very good:     
-<img width="383" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/2d047387-5ec1-4047-86bd-103a3bf6f12c">      
+<img width="387" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/716ce5c5-3dcb-4bae-ae7c-a9207514c3b4">
+   
 
 We then stratified molecules by having total sentences >4905 GPT tokens vs <4905 GPT tokens to see how it compared to GPT since GPT performed much better on molecules with more sentences. **It actually outperformed GPT in lower token total sentences but worse in higher token total sentences.**      
 <img width="440" alt="image" src="https://github.com/Varun-Krishnan1/OpticNerveRegenNLP/assets/19865419/9ac448a3-1621-4f9d-9020-f0bb9dc635f8">      
